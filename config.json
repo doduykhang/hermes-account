@@ -1,0 +1,16 @@
+{
+	"PORT": "8081",
+	"DB": {
+		"HOST": "localhost",
+		"PORT": "3306",
+		"USER": "sammy",
+		"PASSWORD": "password",
+		"NAME": "hermes_account"
+	},
+	"RABBIT_MQ": {
+		"R_HOST": "localhost",
+		"R_PORT": "5672",
+		"R_USER": "guest",
+		"R_PASSWORD": "guest"
+	}
+}

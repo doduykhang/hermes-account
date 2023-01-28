@@ -16,7 +16,9 @@ import (
 )
 
 func GRPCListen() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", "8081"))
+	conf := config.LoadConfig()
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", conf.Port))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,11 +26,10 @@ func GRPCListen() {
 	s := grpc.NewServer()
 
 	//config
-	dsn := "sammy:password@tcp(127.0.0.1:3306)/hermes_account?charset=utf8mb4&parseTime=True&loc=Local"
-	db := config.NewGorm(dsn)
+	db := config.NewGorm(conf)
 	db.AutoMigrate(&model.Account{})
 
-	rabbitMq := config.NewRabbitMq()
+	rabbitMq := config.NewRabbitMq(conf)
 	defer rabbitMq.Close()
 	//repo
 	accountRepo := repository.NewAccount(db)
@@ -42,7 +43,7 @@ func GRPCListen() {
 	//register server
 	proto.RegisterAccountServiceServer(s, accountServer)
 
-	log.Printf("grpc server starting on port %s", "8081")
+	log.Printf("grpc server starting on port %s", conf.Port)
 	if err := s.Serve(lis); err != nil {
 		log.Fatal(err)
 	}
