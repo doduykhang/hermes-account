@@ -1,12 +1,15 @@
 package service
 
 import (
+	"context"
 	"doduykhang/hermes-account/pkg/dto"
 	"doduykhang/hermes-account/pkg/model"
 	"doduykhang/hermes-account/pkg/repository"
+	"encoding/json"
 	"errors"
 
 	"github.com/google/uuid"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,12 +20,66 @@ type Account interface {
 
 type account struct {
 	repo repository.Account
+	rabbitMQ *amqp.Connection
 }
 
-func NewAccount(repo repository.Account) Account {
+func NewAccount(repo repository.Account, rabbitMQ *amqp.Connection) Account {
 	return &account{
 		repo: repo,
+		rabbitMQ: rabbitMQ,
 	}
+}
+
+func (a *account) publisCreateUserEvent(request dto.RegisterRequest, userID string) (error) {
+	ch, err := a.rabbitMQ.Channel()
+	defer ch.Close()
+
+	if err != nil {
+		return err
+	}
+
+	q, err := ch.QueueDeclare(
+  		"create-user", // name
+  		false,   // durable
+  		false,   // delete when unused
+  		false,   // exclusive
+  		false,   // no-wait
+  		nil,     // arguments
+	)
+
+	if err != nil {
+		return err
+	}
+
+	var req struct {
+		ID string `json:"id"`
+		FirstName string `json:"firstName"`
+		LastName string `json:"lastName"`
+		Email string `json:"email"`
+	}
+
+	req.ID = userID
+	req.FirstName = request.UserInfo.FirstName
+	req.LastName = request.UserInfo.LastName
+	req.Email = request.Email
+
+	body, err := json.Marshal(&req)
+
+	if err != nil {
+		return err
+	}
+
+	err = ch.PublishWithContext(context.Background(),
+  		"",     // exchange
+  		q.Name, // routing key
+  		false,  // mandatory
+  		false,  // immediate
+  		amqp.Publishing {
+    			ContentType: "text/plain",
+    			Body:        []byte(body),
+  	})
+
+	return err
 }
 
 func (a *account) Register(request dto.RegisterRequest) (string, error) {
@@ -37,6 +94,7 @@ func (a *account) Register(request dto.RegisterRequest) (string, error) {
 	}
 	account.Password = string(hashedPassword)
 	_, err = a.repo.CreateAccount(&account)
+	a.publisCreateUserEvent(request, account.UserID)
 	if err != nil {
 		return "", err
 	}	

@@ -23,15 +23,18 @@ func GRPCListen() {
 	
 	s := grpc.NewServer()
 
+	//config
 	dsn := "sammy:password@tcp(127.0.0.1:3306)/hermes_account?charset=utf8mb4&parseTime=True&loc=Local"
 	db := config.NewGorm(dsn)
-	
 	db.AutoMigrate(&model.Account{})
+
+	rabbitMq := config.NewRabbitMq()
+	defer rabbitMq.Close()
 	//repo
 	accountRepo := repository.NewAccount(db)
 
 	//service
-	accountService := service.NewAccount(accountRepo)
+	accountService := service.NewAccount(accountRepo, rabbitMq)
 
 	//server 
 	accountServer := controller.NewAccountServer(accountService)
