@@ -20,6 +20,8 @@ func getMysqlConnString(db DB) string {
 
 func NewGorm(config *Config) *gorm.DB {
 	dsn := getMysqlConnString(config.DB)
+	fmt.Println("config", config)
+	fmt.Println("dsn", dsn)
   	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)

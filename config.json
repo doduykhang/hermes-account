@@ -7,7 +7,7 @@
 		"PASSWORD": "password",
 		"NAME": "hermes_account"
 	},
-	"RABBIT_MQ": {
+	"RABBITMQ": {
 		"PROTOCOL": "amqp",
 		"HOST": "localhost",
 		"PORT": "",
