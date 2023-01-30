@@ -13,10 +13,12 @@ type DB struct {
 }
 
 type RabbitMQ struct {
-	Host string `mapstructure:"R_HOST"`
-	Port string `mapstructure:"R_PORT"`
-	User string `mapstructure:"R_USER"`
-	Password string `mapstructure:"R_PASSWORD"`
+	Protocal string `mapstructure:"PROTOCOL"`
+	Host string `mapstructure:"HOST"`
+	Port string `mapstructure:"PORT"`
+	User string `mapstructure:"USER"`
+	Password string `mapstructure:"PASSWORD"`
+	VHost string `mapstructure:"VHOST"`
 }
 
 type Config struct {

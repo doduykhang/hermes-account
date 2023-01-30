@@ -1,5 +1,5 @@
 {
-	"PORT": "8081",
+	"PORT": "8080",
 	"DB": {
 		"HOST": "localhost",
 		"PORT": "3306",
@@ -8,9 +8,11 @@
 		"NAME": "hermes_account"
 	},
 	"RABBIT_MQ": {
-		"R_HOST": "localhost",
-		"R_PORT": "5672",
-		"R_USER": "guest",
-		"R_PASSWORD": "guest"
+		"PROTOCOL": "amqp",
+		"HOST": "localhost",
+		"PORT": "",
+		"USER": "guest",
+		"PASSWORD": "guest",
+		"VHOST": ""
 	}
 }
