@@ -1,6 +1,8 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/spf13/viper"
 )
 
@@ -29,6 +31,8 @@ type Config struct {
 
 func LoadConfig() *Config {
 	var config Config
+	replacer := strings.NewReplacer(".", "_")
+    	viper.SetEnvKeyReplacer(replacer)
 	viper.SetConfigName("config") // name of config file (without extension)
 	viper.SetConfigType("json") // REQUIRED if the config file does not have the extension in the name
 	viper.AddConfigPath(".")               // optionally look for config in the working directory
