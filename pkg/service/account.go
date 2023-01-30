@@ -103,7 +103,7 @@ func (a *account) Register(request dto.RegisterRequest) (string, error) {
 func (a *account) Login(request dto.LoginRequest) (string, error) {
 	account, err := a.repo.FindAccountByEmail(request.Email)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(request.Password))
 	if err != nil {
