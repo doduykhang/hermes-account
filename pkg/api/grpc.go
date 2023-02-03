@@ -18,7 +18,7 @@ import (
 func GRPCListen() {
 	conf := config.LoadConfig()
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", conf.Port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", conf.Server.Port))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func GRPCListen() {
 	//register server
 	proto.RegisterAccountServiceServer(s, accountServer)
 
-	log.Printf("grpc server starting on port %s", conf.Port)
+	log.Printf("grpc server starting on port %s", conf.Server.Port)
 	if err := s.Serve(lis); err != nil {
 		log.Fatal(err)
 	}

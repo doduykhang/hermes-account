@@ -4,9 +4,9 @@ import (
 	"context"
 	"doduykhang/hermes-account/pkg/dto"
 	"doduykhang/hermes-account/pkg/model"
+	"doduykhang/hermes-account/pkg/myError"
 	"doduykhang/hermes-account/pkg/repository"
 	"encoding/json"
-	"errors"
 
 	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -83,6 +83,15 @@ func (a *account) publisCreateUserEvent(request dto.RegisterRequest, userID stri
 }
 
 func (a *account) Register(request dto.RegisterRequest) (string, error) {
+	acc, err := a.repo.FindAccountByEmail(request.Email)
+	if err != nil {
+		return "", err  	
+	}
+
+	if acc != nil {
+		return "", myError.EmailExists
+	}
+
 	var account model.Account
 	account.UserID = uuid.New().String()
 	account.ID = uuid.New().String()
@@ -90,7 +99,7 @@ func (a *account) Register(request dto.RegisterRequest) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	account.Password = string(hashedPassword)
 	_, err = a.repo.CreateAccount(&account)
@@ -107,7 +116,7 @@ func (a *account) Login(request dto.LoginRequest) (string, error) {
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(request.Password))
 	if err != nil {
-		return "", errors.New("Wrong user name or password")
+		return "", myError.WrongCredential
 	}
 	return account.UserID, nil
 }

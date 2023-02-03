@@ -6,6 +6,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Server struct {
+	Port string `mapstructure:"PORT"`
+}
+
 type DB struct {
 	Host string `mapstructure:"HOST"`
 	Port string `mapstructure:"PORT"`
@@ -24,7 +28,7 @@ type RabbitMQ struct {
 }
 
 type Config struct {
-	Port string `mapstructure:"PORT"`
+	Server Server `mapstructure:"SERVER"`
 	DB DB `mapstructure:"DB"`
 	RabbitMQ RabbitMQ `mapstructure:"RABBITMQ"`
 }

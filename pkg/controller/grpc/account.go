@@ -4,7 +4,11 @@ import (
 	"context"
 	"doduykhang/hermes-account/internal/proto"
 	"doduykhang/hermes-account/pkg/dto"
+	"doduykhang/hermes-account/pkg/myError"
 	"doduykhang/hermes-account/pkg/service"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type AccountServer struct {
@@ -32,6 +36,9 @@ func (a *AccountServer) Register(ctx context.Context, req *proto.RegisterRequest
 	userID, err := a.service.Register(request)
 
 	if err != nil {
+		if err == myError.EmailExists {
+			return nil, status.Error(codes.Unavailable, err.Error())	
+		}
 		return nil, err
 	}
 
@@ -48,6 +55,9 @@ func (a *AccountServer) Login(ctx context.Context, req *proto.LoginRequest) (*pr
 	userID, err := a.service.Login(request)
 
 	if err != nil {
+		if err == myError.WrongCredential {
+			return nil, status.Error(codes.Unauthenticated, err.Error())	
+		}
 		return nil, err
 	}
 	var res proto.LoginResponse
